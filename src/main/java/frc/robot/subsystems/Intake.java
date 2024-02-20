@@ -1,0 +1,81 @@
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+
+public class Intake extends SubsystemBase {
+    private static final String canBusName = "canivore";
+    private final TalonFX m_intakeTalonFX = new TalonFX(8, canBusName);
+
+    private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
+            false);
+
+    public Intake() {
+        initializeTalonFX(m_intakeTalonFX.getConfigurator());
+
+    }
+
+    public Command upTake() {
+        return startEnd(
+                () -> setVelocity(-30.0),
+                () -> setVelocity(0.0));
+    }
+
+    public Command outPut() {
+        return startEnd(
+                () -> setVelocity(30.0),
+                () -> setVelocity(0.0));
+    }
+
+    public Command upTake(double velocity) {
+        return startEnd(
+                () -> setVelocity(-velocity),
+                () -> setVelocity(0.0));
+    }
+
+    public Command outPut(double velocity) {
+        return startEnd(
+                () -> setVelocity(velocity),
+                () -> setVelocity(0.0));
+    }
+
+    private void setVelocity(double desiredRotationsPerSecond) {
+
+        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
+            desiredRotationsPerSecond = 0;
+        }
+        double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to
+                                                                           // the
+        // arbitrary feed
+        // forward
+        m_intakeTalonFX.setControl(
+                m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
+    }
+
+    private void initializeTalonFX(TalonFXConfigurator cfg) {
+        var toApply = new TalonFXConfiguration();
+
+        /*
+         * Torque-based velocity does not require a feed forward, as torque will
+         * accelerate the rotor up to the desired velocity by itself
+         */
+        toApply.Slot0.kP = 5; // An error of 1 rotation per second results in 5 amps output
+        toApply.Slot0.kI = 0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
+        toApply.Slot0.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
+
+        // Peak output of 40 amps
+        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+
+        cfg.apply(toApply);
+    }
+
+    public TalonFX getIntakeTalonFX() {
+        return m_intakeTalonFX;
+    }
+
+}
