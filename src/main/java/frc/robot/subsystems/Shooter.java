@@ -28,10 +28,15 @@ public class Shooter extends SubsystemBase {
 
     }
 
-    public Command commonShootCommand(boolean oppositeDirection) {
+    public Command commonShootCommand(double velocity, boolean oppositeDirection) {
         if (oppositeDirection == true) {
             return startEnd(
-                    () -> setVelocity(-20.0),
+                    () -> setVelocity(-velocity),
+                    () -> setVelocity(0.0));
+        }
+        if (oppositeDirection == false) {
+            return startEnd(
+                    () -> setVelocity(velocity),
                     () -> setVelocity(0.0));
         }
         return runOnce(() -> setVelocity(0.0));
@@ -50,7 +55,7 @@ public class Shooter extends SubsystemBase {
                 () -> setVelocity(0.0));
     }
 
-    private void setVelocity(double velocity) {
+    public void setVelocity(double velocity) {
         var desiredRotationsPerSecond = velocity;
 
         if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
@@ -64,7 +69,7 @@ public class Shooter extends SubsystemBase {
                 m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
     }
 
-    private void setVelocity(double velocityUp, double velocityDown) {
+    public void setVelocity(double velocityUp, double velocityDown) {
         var desiredRotationsPerSecond = velocityUp;
         var desiredRotationsPerSecondDown = velocityDown;
 

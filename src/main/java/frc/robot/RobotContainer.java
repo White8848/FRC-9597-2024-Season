@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.Commands.VelocityShootCommand;
 import frc.robot.generated.TunerConstants;
 
 public class RobotContainer implements Sendable{
@@ -37,13 +38,10 @@ public class RobotContainer implements Sendable{
 
   private final CommandXboxController m_joystick = new CommandXboxController(0);
 
-  private boolean m_monitor = false;
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // m_endEffectorSubsystem.setDefaultCommand(m_teleopEndEffector);
     // Configure the trigger bindings
     configureBindings();
   }
@@ -72,11 +70,13 @@ public class RobotContainer implements Sendable{
 
     m_joystick.x().whileTrue(m_intake.upTake());
 
-    m_joystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(true));
+    m_joystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0,true));
 
-    m_joystick.y().whileTrue(m_intake.outPut(5.0));
+    m_joystick.y().whileTrue(m_intake.outPut(5.0)).whileTrue(m_shooter.commonShootCommand(5.0, true));
 
-    m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
+    // m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
+
+    m_joystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
 
   }
 
