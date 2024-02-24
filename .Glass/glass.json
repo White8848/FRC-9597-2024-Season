@@ -6,9 +6,7 @@
     "Retained Values": {
       "open": false
     },
-    "Transitory Values": {
-      "open": false
-    },
+    "combined": true,
     "transitory": {
       "Drive": {
         "open": true
