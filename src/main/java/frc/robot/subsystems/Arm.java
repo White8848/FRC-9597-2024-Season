@@ -7,28 +7,29 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-
+import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 
 public class Arm extends SubsystemBase {
     private static final String canBusName = "canivore";
     private final TalonFX m_leftTalonFX = new TalonFX(4, canBusName);
     private final TalonFX m_rightTalonFX = new TalonFX(5, canBusName);
-    private final MotionMagicTorqueCurrentFOC m_mmtorquePosition = new MotionMagicTorqueCurrentFOC(0, 0, 0, false,
-            false, false);
+    private final DynamicMotionMagicTorqueCurrentFOC m_mmtorquePosition = new DynamicMotionMagicTorqueCurrentFOC(0, 35,
+            250, 4000, 0, 0, false, false, false);
 
     private double m_targetArmPosition = 0.0;
     private double m_realArmPosition = 0.0;
 
-    private final double ADD_POSITION = 2;
+    private final double ADD_POSITION = 8;
     private final double PI = 3.1415926;
-    private final double MAX_FEEDFORWARD = 38.0;
+    private final double MAX_FEEDFORWARD = 10.0;
+    private final double MAXIMUM_POSITION = 0.0;
+    private final double MINIMUM_POSITION = -28.0;
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -55,6 +56,10 @@ public class Arm extends SubsystemBase {
 
     public Command armUp() {
         return runOnce(() -> {
+            m_mmtorquePosition.Velocity = 27;
+            m_mmtorquePosition.Acceleration = 350;
+            m_mmtorquePosition.Jerk = 4000;
+
             var position = getArmPosition() - ADD_POSITION;
             setArmPosition(position);
         });
@@ -62,16 +67,20 @@ public class Arm extends SubsystemBase {
 
     public Command armDown() {
         return runOnce(() -> {
+            m_mmtorquePosition.Velocity = 22;
+            m_mmtorquePosition.Acceleration = 250;
+            m_mmtorquePosition.Jerk = 3500;
+
             var position = getArmPosition() + ADD_POSITION;
             setArmPosition(position);
         });
     }
 
     public void setArmPosition(double position) {
-        if (position > 0.0) {
-            position = 0.0;
-        } else if (position < -14.0) {
-            position = -14.0;
+        if (position > MAXIMUM_POSITION) {
+            position = MAXIMUM_POSITION;
+        } else if (position < MINIMUM_POSITION) {
+            position = MINIMUM_POSITION;
         }
         m_targetArmPosition = position;
     }
@@ -85,17 +94,13 @@ public class Arm extends SubsystemBase {
          * Torque-based velocity does not require a feed forward, as torque will
          * accelerate the rotor up to the desired velocity by itself
          */
-        toApply.Slot0.kP = 40; // An error of 1 rotation per second results in 5 amps output
-        toApply.Slot0.kI = 0.15; // An error of 1 rotation per second increases output by 0.1 amps every second
-        toApply.Slot0.kD = 7; // A change of 1000 rotation per second squared results in 1 amp output
+        toApply.Slot0.kP = 4.6; // An error of 1 rotation per second results in 5 amps output
+        toApply.Slot0.kI = 0.17; // An error of 1 rotation per second increases output by 0.1 amps every second
+        toApply.Slot0.kD = 1.7; // A change of 1000 rotation per second squared results in 1 amp output
 
         // Peak output of 40 amps
         toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
         toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
-
-        toApply.MotionMagic.MotionMagicCruiseVelocity = 40;
-        toApply.MotionMagic.MotionMagicAcceleration = 400;
-        toApply.MotionMagic.MotionMagicJerk = 4000;
 
         cfg.apply(toApply);
     }
@@ -103,8 +108,8 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         telemetry();
-        m_realArmPosition = -(getArmPosition() / 40.0) * 360 - 5.0;
-        var feedforward = -(MAX_FEEDFORWARD * Math.cos(m_realArmPosition * PI / 180));
+        m_realArmPosition = -(getArmPosition() / 80.0) * 360 - 5.0;
+        var feedforward = -(MAX_FEEDFORWARD * Math.cos(m_realArmPosition * PI / 180 - PI / 4));
 
         m_leftTalonFX.setControl(m_mmtorquePosition.withPosition(m_targetArmPosition).withFeedForward(feedforward));
     }

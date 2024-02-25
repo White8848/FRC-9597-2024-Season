@@ -9,10 +9,10 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.DigitalInput;
+
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -39,6 +39,8 @@ public class RobotContainer implements Sendable {
   private final Arm m_arm = new Arm();
 
   private final CommandXboxController m_joystick = new CommandXboxController(0);
+
+  private final DigitalInput m_lightTrigger = new DigitalInput(0);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -71,7 +73,7 @@ public class RobotContainer implements Sendable {
     m_joystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
     m_joystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
 
-    m_joystick.x().whileTrue(m_intake.upTake(m_shooter.isShooterOn()));
+    m_joystick.x().whileTrue(m_intake.upTake(false, m_shooter.isShooterOn()));
 
     m_joystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
 

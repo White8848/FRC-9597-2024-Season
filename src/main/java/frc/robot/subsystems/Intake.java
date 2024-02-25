@@ -6,7 +6,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -18,7 +17,6 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_intakeTalonFX = new TalonFX(8, canBusName);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
-    private final DigitalInput m_lightTrigger = new DigitalInput(0);
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -36,10 +34,10 @@ public class Intake extends SubsystemBase {
 
     }
 
-    public Command upTake(boolean isShooterOn) {
+    public Command upTake(boolean lighterTrigger, boolean isShooterOn) {
         return startEnd(
                 () -> {
-                    if (m_lightTrigger.get() == true && isShooterOn == false) {
+                    if (lighterTrigger == true && isShooterOn == false) {
                         setVelocity(0.0);
                     } else {
                         setVelocity(-30.0);
@@ -54,10 +52,10 @@ public class Intake extends SubsystemBase {
                 () -> setVelocity(0.0));
     }
 
-    public Command upTake(double velocity, boolean isShooterOn) {
+    public Command upTake(double velocity, boolean lighterTrigger, boolean isShooterOn) {
         return startEnd(
                 () -> {
-                    if (m_lightTrigger.get() == true && isShooterOn == false) {
+                    if (lighterTrigger == true && isShooterOn == false) {
                         setVelocity(0.0);
                     } else {
                         setVelocity(-velocity);
