@@ -1,20 +1,12 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.units.Per;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
-import java.time.Period;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -26,6 +18,7 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_intakeTalonFX = new TalonFX(8, canBusName);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
+    private final DigitalInput m_lightTrigger = new DigitalInput(0);
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -43,9 +36,15 @@ public class Intake extends SubsystemBase {
 
     }
 
-    public Command upTake() {
+    public Command upTake(boolean isShooterOn) {
         return startEnd(
-                () -> setVelocity(-30.0),
+                () -> {
+                    if (m_lightTrigger.get() == true && isShooterOn == false) {
+                        setVelocity(0.0);
+                    } else {
+                        setVelocity(-30.0);
+                    }
+                },
                 () -> setVelocity(0.0));
     }
 
@@ -55,9 +54,15 @@ public class Intake extends SubsystemBase {
                 () -> setVelocity(0.0));
     }
 
-    public Command upTake(double velocity) {
+    public Command upTake(double velocity, boolean isShooterOn) {
         return startEnd(
-                () -> setVelocity(-velocity),
+                () -> {
+                    if (m_lightTrigger.get() == true && isShooterOn == false) {
+                        setVelocity(0.0);
+                    } else {
+                        setVelocity(-velocity);
+                    }
+                },
                 () -> setVelocity(0.0));
     }
 
@@ -73,16 +78,9 @@ public class Intake extends SubsystemBase {
             desiredRotationsPerSecond = 0;
         }
 
-        m_intakeTalonFX.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond));
-    }
-
-    @Override
-    public void periodic() {
-        velocityTarget.set(m_intakeTalonFX.getClosedLoopReference().getValueAsDouble());
-        velocityMeasurement.set(m_intakeTalonFX.getVelocity().getValueAsDouble());
-        torqueTarget.set(m_intakeTalonFX.getClosedLoopOutput().getValueAsDouble());
-        torqueMeasurement.set(m_intakeTalonFX.getTorqueCurrent().getValueAsDouble());
-        torqueFeedForward.set(m_intakeTalonFX.getClosedLoopFeedForward().getValueAsDouble());
+        double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction
+        m_intakeTalonFX.setControl(
+                m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
     }
 
     private void initializeTalonFX(TalonFXConfigurator cfg) {
@@ -101,6 +99,15 @@ public class Intake extends SubsystemBase {
         toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
 
         cfg.apply(toApply);
+    }
+
+    @Override
+    public void periodic() {
+        velocityTarget.set(m_intakeTalonFX.getClosedLoopReference().getValueAsDouble());
+        velocityMeasurement.set(m_intakeTalonFX.getVelocity().getValueAsDouble());
+        torqueTarget.set(m_intakeTalonFX.getClosedLoopOutput().getValueAsDouble());
+        torqueMeasurement.set(m_intakeTalonFX.getTorqueCurrent().getValueAsDouble());
+        torqueFeedForward.set(m_intakeTalonFX.getClosedLoopFeedForward().getValueAsDouble());
     }
 
     public TalonFX getIntakeTalonFX() {
