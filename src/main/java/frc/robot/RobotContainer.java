@@ -11,12 +11,11 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.Commands.VelocityShootCommand;
+import frc.robot.commands.VelocityShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 
@@ -40,8 +39,6 @@ public class RobotContainer implements Sendable {
 
   private final CommandXboxController m_joystick = new CommandXboxController(0);
 
-  private final DigitalInput m_lightTrigger = new DigitalInput(0);
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -52,17 +49,16 @@ public class RobotContainer implements Sendable {
 
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(-m_joystick.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                             // negative Y (forward)
-            .withVelocityY(-m_joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-m_joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X
-                                                                          // (left)
-        ));
+        drivetrain.applyRequest(() -> drive.withVelocityX(curveControl(-m_joystick.getLeftY()) * MaxSpeed)
+            // Drive forward with negative Y (forward)
+            .withVelocityY(curveControl(-m_joystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+            // Drive counterclockwise with negative X (left)
+            .withRotationalRate(curveControl(-m_joystick.getRightX()) * MaxAngularRate)));
 
-    new Trigger(
-        () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
-            + Math.abs(m_joystick.getRightX())) < 0.08) ? true : false)
-        .whileTrue(drivetrain.applyRequest(() -> brake));
+    // new Trigger(
+    // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
+    // + Math.abs(m_joystick.getRightX())) < 0.08) ? true : false)
+    // .whileTrue(drivetrain.applyRequest(() -> brake));
 
     // reset the field-centric heading on left bumper press
     m_joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
@@ -73,7 +69,7 @@ public class RobotContainer implements Sendable {
     m_joystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
     m_joystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
 
-    m_joystick.x().whileTrue(m_intake.upTake(false, m_shooter.isShooterOn()));
+    m_joystick.x().whileTrue(m_intake.smartUpTake(25.0));
 
     m_joystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
 
@@ -91,6 +87,13 @@ public class RobotContainer implements Sendable {
   @Override
   public void initSendable(SendableBuilder builder) {
 
+  }
+
+  private double curveControl(double input) {
+    if (input < 0) {
+      return -Math.pow(input, 2);
+    }
+    return Math.pow(input, 2);
   }
 
 }

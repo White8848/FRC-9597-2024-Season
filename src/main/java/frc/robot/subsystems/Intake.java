@@ -2,15 +2,20 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.networktables.DoublePublisher;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+
+import frc.robot.subsystems.Shooter;
+import edu.wpi.first.wpilibj.Timer;
 
 public class Intake extends SubsystemBase {
     private static final String canBusName = "canivore";
@@ -29,18 +34,47 @@ public class Intake extends SubsystemBase {
     private final DoublePublisher torqueMeasurement = driveStats.getDoubleTopic("Torque Measurement").publish();
     private final DoublePublisher torqueFeedForward = driveStats.getDoubleTopic("Torque FeedForward").publish();
 
+    private final DigitalInput lighterTrigger = new DigitalInput(0);
+    private final Shooter m_shooter = new Shooter();
+    private boolean m_stop = false;
+    private final Timer m_timer = new Timer();
+
     public Intake() {
         initializeTalonFX(m_intakeTalonFX.getConfigurator());
-
+        m_timer.start();
     }
 
-    public Command upTake(boolean lighterTrigger, boolean isShooterOn) {
+    public Command upTake() {
         return startEnd(
+                () -> setVelocity(-30.0),
+                () -> setVelocity(0.0));
+    }
+
+    public Command upTake(double velocity) {
+        return startEnd(
+                () -> setVelocity(-velocity),
+                () -> setVelocity(0.0));
+    }
+
+    public Command smartUpTake(double velocity) {
+        return runEnd(
                 () -> {
-                    if (lighterTrigger == true && isShooterOn == false) {
-                        setVelocity(0.0);
+                    SmartDashboard.putNumber("Lighter Trigger Time", m_timer.get());
+                    if (lighterTrigger.get() && m_shooter.isShooterOn() == false && m_stop == false) {
+                        m_stop = true;
+                        m_timer.reset();
+                    }
+                    if (m_stop == true && m_shooter.isShooterOn() == false) {
+                        if (m_timer.get() < 0.1)
+                            setVelocity(0.0);
+                        else if (m_timer.get() < 0.18)
+                            setVelocity(5.0);
+                        else
+                            setVelocity(0.0);
+
                     } else {
-                        setVelocity(-30.0);
+                        setVelocity(-velocity);
+                        m_stop = false;
                     }
                 },
                 () -> setVelocity(0.0));
@@ -48,33 +82,27 @@ public class Intake extends SubsystemBase {
 
     public Command outPut() {
         return startEnd(
-                () -> setVelocity(30.0),
-                () -> setVelocity(0.0));
-    }
-
-    public Command upTake(double velocity, boolean lighterTrigger, boolean isShooterOn) {
-        return startEnd(
                 () -> {
-                    if (lighterTrigger == true && isShooterOn == false) {
-                        setVelocity(0.0);
-                    } else {
-                        setVelocity(-velocity);
-                    }
+                    setVelocity(30.0);
+                    m_stop = false;
                 },
                 () -> setVelocity(0.0));
     }
 
     public Command outPut(double velocity) {
         return startEnd(
-                () -> setVelocity(velocity),
+                () -> {
+                    setVelocity(velocity);
+                    m_stop = false;
+                },
                 () -> setVelocity(0.0));
     }
 
-    public void setVelocity(double desiredRotationsPerSecond) {
+    public Command stop() {
+        return runOnce(() -> setVelocity(0.0));
+    }
 
-        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
-            desiredRotationsPerSecond = 0;
-        }
+    public void setVelocity(double desiredRotationsPerSecond) {
 
         double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction
         m_intakeTalonFX.setControl(
@@ -106,6 +134,7 @@ public class Intake extends SubsystemBase {
         torqueTarget.set(m_intakeTalonFX.getClosedLoopOutput().getValueAsDouble());
         torqueMeasurement.set(m_intakeTalonFX.getTorqueCurrent().getValueAsDouble());
         torqueFeedForward.set(m_intakeTalonFX.getClosedLoopFeedForward().getValueAsDouble());
+
     }
 
     public TalonFX getIntakeTalonFX() {
