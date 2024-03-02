@@ -56,8 +56,8 @@ public class Arm extends SubsystemBase {
 
     public Command armUp() {
         return runOnce(() -> {
-            m_mmtorquePosition.Velocity = 27;
-            m_mmtorquePosition.Acceleration = 350;
+            m_mmtorquePosition.Velocity = 30;
+            m_mmtorquePosition.Acceleration = 360;
             m_mmtorquePosition.Jerk = 4000;
 
             var position = getArmPosition() - ADD_POSITION;
@@ -67,9 +67,9 @@ public class Arm extends SubsystemBase {
 
     public Command armDown() {
         return runOnce(() -> {
-            m_mmtorquePosition.Velocity = 22;
-            m_mmtorquePosition.Acceleration = 250;
-            m_mmtorquePosition.Jerk = 3500;
+            m_mmtorquePosition.Velocity = 20;
+            m_mmtorquePosition.Acceleration = 270;
+            m_mmtorquePosition.Jerk = 4000;
 
             var position = getArmPosition() + ADD_POSITION;
             setArmPosition(position);
@@ -94,7 +94,7 @@ public class Arm extends SubsystemBase {
          * Torque-based velocity does not require a feed forward, as torque will
          * accelerate the rotor up to the desired velocity by itself
          */
-        toApply.Slot0.kP = 4.6; // An error of 1 rotation per second results in 5 amps output
+        toApply.Slot0.kP = 4.3; // An error of 1 rotation per second results in 5 amps output
         toApply.Slot0.kI = 0.17; // An error of 1 rotation per second increases output by 0.1 amps every second
         toApply.Slot0.kD = 1.7; // A change of 1000 rotation per second squared results in 1 amp output
 
