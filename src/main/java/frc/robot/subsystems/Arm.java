@@ -27,9 +27,9 @@ public class Arm extends SubsystemBase {
 
     private final double ADD_POSITION = 8;
     private final double PI = 3.1415926;
-    private final double MAX_FEEDFORWARD = 10.0;
+    private final double MAX_FEEDFORWARD = 8.0;
     private final double MAXIMUM_POSITION = 0.0;
-    private final double MINIMUM_POSITION = -28.0;
+    private final double MINIMUM_POSITION = -32.0;
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -51,14 +51,14 @@ public class Arm extends SubsystemBase {
         initializeTalonFX(m_leftTalonFX.getConfigurator());
         m_rightTalonFX.setControl(new Follower(m_leftTalonFX.getDeviceID(), true));
 
-        m_realArmPosition = 0.0139; // 5 degree
+        m_realArmPosition = -0.003; // -1 degree / 360
     }
 
     public Command armUp() {
         return runOnce(() -> {
-            m_mmtorquePosition.Velocity = 30;
-            m_mmtorquePosition.Acceleration = 360;
-            m_mmtorquePosition.Jerk = 4000;
+            m_mmtorquePosition.Velocity = 35;
+            m_mmtorquePosition.Acceleration = 100;
+            m_mmtorquePosition.Jerk = 1000;
 
             var position = getArmPosition() - ADD_POSITION;
             setArmPosition(position);
@@ -67,9 +67,9 @@ public class Arm extends SubsystemBase {
 
     public Command armDown() {
         return runOnce(() -> {
-            m_mmtorquePosition.Velocity = 20;
-            m_mmtorquePosition.Acceleration = 270;
-            m_mmtorquePosition.Jerk = 4000;
+            m_mmtorquePosition.Velocity = 30 ;
+            m_mmtorquePosition.Acceleration = 100;
+            m_mmtorquePosition.Jerk = 1000;
 
             var position = getArmPosition() + ADD_POSITION;
             setArmPosition(position);
@@ -94,9 +94,9 @@ public class Arm extends SubsystemBase {
          * Torque-based velocity does not require a feed forward, as torque will
          * accelerate the rotor up to the desired velocity by itself
          */
-        toApply.Slot0.kP = 4.3; // An error of 1 rotation per second results in 5 amps output
-        toApply.Slot0.kI = 0.17; // An error of 1 rotation per second increases output by 0.1 amps every second
-        toApply.Slot0.kD = 1.7; // A change of 1000 rotation per second squared results in 1 amp output
+        toApply.Slot0.kP = 3.5; // An error of 1 rotation per second results in 5 amps output
+        toApply.Slot0.kI = 0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
+        toApply.Slot0.kD = 1.5; // A change of 1000 rotation per second squared results in 1 amp output
 
         // Peak output of 40 amps
         toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
@@ -109,10 +109,12 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         telemetry();
         m_realArmPosition = -(getArmPosition() / 80.0) * 360 - 5.0;
-        var feedforward = -(MAX_FEEDFORWARD * Math.cos(m_realArmPosition * PI / 180 - PI / 4));
+        var armPositionRad = m_realArmPosition * PI / 180;
+        var feedforward = -MAX_FEEDFORWARD * Math.cos(2 * (armPositionRad - 4 / PI));
 
         m_leftTalonFX.setControl(m_mmtorquePosition.withPosition(m_targetArmPosition).withFeedForward(feedforward));
     }
+
 
     private void telemetry() {
         velocityTarget.set(m_leftTalonFX.getClosedLoopReferenceSlope().getValueAsDouble());

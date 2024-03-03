@@ -18,6 +18,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.commands.VelocityShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Climber;
 
 public class RobotContainer implements Sendable {
   private double MaxSpeed = 3; // 6 meters per second desired top speed
@@ -36,8 +37,10 @@ public class RobotContainer implements Sendable {
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
   private final Arm m_arm = new Arm();
+  private final Climber m_climber = new Climber();
 
   private final CommandXboxController m_joystick = new CommandXboxController(0);
+  private final CommandXboxController m_joystick1 = new CommandXboxController(1);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -81,6 +84,11 @@ public class RobotContainer implements Sendable {
 
     m_joystick.povUp().onTrue(m_arm.armUp());
     m_joystick.povDown().onTrue(m_arm.armDown());
+
+    m_joystick1.leftTrigger().whileTrue(m_climber.leftClimberUp());
+    m_joystick1.leftBumper().whileTrue(m_climber.leftClimberDown());
+    m_joystick1.rightTrigger().whileTrue(m_climber.rightClimberUp());
+    m_joystick1.rightBumper().whileTrue(m_climber.rightClimberDown());
 
   }
 
