@@ -18,10 +18,11 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.commands.VelocityShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.RightClimber;
+import frc.robot.subsystems.LeftClimber;
 
 public class RobotContainer implements Sendable {
-  private double MaxSpeed = 3; // 6 meters per second desired top speed
+  private double MaxSpeed = 5.0; // 6 meters per second desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -37,10 +38,10 @@ public class RobotContainer implements Sendable {
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
   private final Arm m_arm = new Arm();
-  private final Climber m_climber = new Climber();
+  private final RightClimber m_climber = new RightClimber();
 
-  private final CommandXboxController m_joystick = new CommandXboxController(0);
-  private final CommandXboxController m_joystick1 = new CommandXboxController(1);
+  private final CommandXboxController m_driverJoystick = new CommandXboxController(0);
+  private final CommandXboxController m_operatorJoystick = new CommandXboxController(1);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -52,11 +53,12 @@ public class RobotContainer implements Sendable {
 
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(curveControl(-m_joystick.getLeftY()) * MaxSpeed)
-            // Drive forward with negative Y (forward)
-            .withVelocityY(curveControl(-m_joystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+        // Drive forward with negative Y (forward)
+        drivetrain.applyRequest(() -> drive.withVelocityX(curveControl(-m_driverJoystick.getLeftY()) * MaxSpeed)
+            // Drive left with negative X (left)
+            .withVelocityY(curveControl(-m_driverJoystick.getLeftX()) * MaxSpeed)
             // Drive counterclockwise with negative X (left)
-            .withRotationalRate(curveControl(-m_joystick.getRightX()) * MaxAngularRate)));
+            .withRotationalRate(curveControl(-m_driverJoystick.getRightX()) * MaxAngularRate)));
 
     // new Trigger(
     // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
@@ -64,32 +66,26 @@ public class RobotContainer implements Sendable {
     // .whileTrue(drivetrain.applyRequest(() -> brake));
 
     // reset the field-centric heading on left bumper press
-    m_joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+    m_driverJoystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
     drivetrain.registerTelemetry(logger::telemeterize);
 
-    m_joystick.rightTrigger().whileTrue(m_shooter.commonShootCommand());
-    m_joystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
-    m_joystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
+    m_driverJoystick.rightTrigger().whileTrue(m_shooter.commonShootCommand());
+    m_driverJoystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
+    m_driverJoystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
 
-    m_joystick.x().whileTrue(m_intake.smartUpTake(25.0));
+    m_driverJoystick.x().whileTrue(m_intake.smartUpTake(25.0));
 
-    m_joystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
+    m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
 
-    m_joystick.y().whileTrue(m_intake.outPut(5.0)).whileTrue(m_shooter.commonShootCommand(5.0, true));
+    m_driverJoystick.y().whileTrue(m_intake.outPut(5.0)).whileTrue(m_shooter.commonShootCommand(5.0, true));
 
     // m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
 
-    m_joystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
+    m_driverJoystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
 
-    m_joystick.povUp().onTrue(m_arm.armUp());
-    m_joystick.povDown().onTrue(m_arm.armDown());
-
-    m_joystick1.leftTrigger().whileTrue(m_climber.leftClimberUp());
-    m_joystick1.leftBumper().whileTrue(m_climber.leftClimberDown());
-    m_joystick1.rightTrigger().whileTrue(m_climber.rightClimberUp());
-    m_joystick1.rightBumper().whileTrue(m_climber.rightClimberDown());
-
+    m_driverJoystick.povUp().onTrue(m_arm.armUp());
+    m_driverJoystick.povDown().onTrue(m_arm.armDown());
   }
 
   @Override

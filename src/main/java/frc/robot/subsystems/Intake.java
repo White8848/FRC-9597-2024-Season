@@ -14,7 +14,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 
-import frc.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj.Timer;
 
 public class Intake extends SubsystemBase {

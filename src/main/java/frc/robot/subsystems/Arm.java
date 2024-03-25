@@ -11,7 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 
@@ -75,6 +74,10 @@ public class Arm extends SubsystemBase {
             setArmPosition(position);
         });
     }
+
+    // public Command armContinueUp(){
+
+    // }
 
     public void setArmPosition(double position) {
         if (position > MAXIMUM_POSITION) {
