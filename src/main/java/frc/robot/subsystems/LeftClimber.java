@@ -31,7 +31,14 @@ public class LeftClimber extends SubsystemBase {
 
     public Command Up(){
         return runEnd(
-            () -> setVelocity(0.0),
+            () -> setVelocity(1.0),
+            () -> setVelocity(0.0)
+        );
+    }
+
+    public Command Down(){
+        return runEnd(
+            () -> setVelocity(-1.0),
             () -> setVelocity(0.0)
         );
     }

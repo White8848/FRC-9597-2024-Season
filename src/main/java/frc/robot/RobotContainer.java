@@ -90,6 +90,11 @@ public class RobotContainer implements Sendable {
     m_driverJoystick.povUp().onTrue(m_arm.armUp());
     m_driverJoystick.povDown().onTrue(m_arm.armDown());
 
+    //////////////////////////// Climber ////////////////////////////
+    m_operatorJoystick.rightBumper().whileTrue(m_rightClimber.Up());
+    m_operatorJoystick.rightTrigger().whileTrue(m_rightClimber.Down());
+    m_operatorJoystick.leftBumper().whileTrue(m_leftClimber.Up());
+    m_operatorJoystick.leftTrigger().whileTrue(m_leftClimber.Down());
   }
 
   @Override

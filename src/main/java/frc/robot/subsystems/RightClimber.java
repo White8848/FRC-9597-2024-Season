@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -26,6 +27,19 @@ public class RightClimber extends SubsystemBase {
     public RightClimber() {
         initializeTalonFX(m_TalonFX.getConfigurator());
         m_timer.start();
+    }
+
+    public Command Up() {
+        return runEnd(
+                () -> setVelocity(-1.0),
+                () -> setVelocity(0.0));
+    }
+
+    public Command Down(){
+        return runEnd(
+            () -> setVelocity(1.0),
+            () -> setVelocity(0.0)
+        );
     }
 
     public void setVelocity(double Velocity) {
