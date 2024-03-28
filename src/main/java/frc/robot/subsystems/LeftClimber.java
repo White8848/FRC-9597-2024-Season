@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -13,7 +14,7 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.CoastOut;
 
 public class LeftClimber extends SubsystemBase {
-    private final TalonFX m_TalonFX = new TalonFX(15);
+    private final TalonFX m_TalonFX = new TalonFX(23);
     private final PositionTorqueCurrentFOC m_torquePosition = new PositionTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, false, false,
@@ -28,11 +29,18 @@ public class LeftClimber extends SubsystemBase {
         m_timer.start();
     }
 
-    public void setVelocity(double Velocity) {
+    public Command Up(){
+        return runEnd(
+            () -> setVelocity(0.0),
+            () -> setVelocity(0.0)
+        );
+    }
+
+    private void setVelocity(double Velocity) {
         m_TalonFX.setControl(m_torqueVelocity.withVelocity(Velocity));
     }
 
-    public void setBreak(TalonFX talonFX) {
+    private void setBreak(TalonFX talonFX) {
         talonFX.setControl(m_neutralOut);
     }
 

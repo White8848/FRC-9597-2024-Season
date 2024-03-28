@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -25,25 +26,19 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.RightClimber;
 import frc.robot.subsystems.LeftClimber;
+import frc.robot.Constants.DraveTrainConstants;;
 
 public class RobotContainer implements Sendable {
-  private double MaxSpeed = 5.0; // 6 meters per second desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                               // driving in open loop
-  private final Telemetry logger = new Telemetry(MaxSpeed);
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final Telemetry logger = new Telemetry(DraveTrainConstants.MaxSpeed);
 
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
   private final Arm m_arm = new Arm();
-  private final RightClimber m_climber = new RightClimber();
+  private final RightClimber m_rightClimber = new RightClimber();
+  private final LeftClimber m_leftClimber = new LeftClimber();
 
   private final CommandXboxController m_driverJoystick = new CommandXboxController(0);
   private final CommandXboxController m_operatorJoystick = new CommandXboxController(1);
@@ -58,22 +53,12 @@ public class RobotContainer implements Sendable {
     configureBindings();
 
     autoChooser = AutoBuilder.buildAutoChooser();
-    
+
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
-
   private void configureBindings() {
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        // Drive forward with negative Y (forward)
-        drivetrain.applyRequest(() -> drive.withVelocityX(curveControl(-m_driverJoystick.getLeftY()) * MaxSpeed)
-            // Drive left with negative X (left)
-            .withVelocityY(curveControl(-m_driverJoystick.getLeftX()) * MaxSpeed)
-            // Drive counterclockwise with negative X (left)
-            .withRotationalRate(curveControl(-m_driverJoystick.getRightX()) * MaxAngularRate)));
+    drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick));
 
     // new Trigger(
     // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
@@ -81,7 +66,10 @@ public class RobotContainer implements Sendable {
     // .whileTrue(drivetrain.applyRequest(() -> brake));
 
     // reset the field-centric heading on left bumper press
-    m_driverJoystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+    m_driverJoystick.start().onTrue(drivetrain.runOnce(() -> {
+
+      drivetrain.seedFieldRelative();
+    }));
 
     drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -101,6 +89,7 @@ public class RobotContainer implements Sendable {
 
     m_driverJoystick.povUp().onTrue(m_arm.armUp());
     m_driverJoystick.povDown().onTrue(m_arm.armDown());
+
   }
 
   @Override
@@ -108,11 +97,13 @@ public class RobotContainer implements Sendable {
 
   }
 
-  private double curveControl(double input) {
-    if (input < 0) {
-      return -Math.pow(input, 2);
-    }
-    return Math.pow(input, 2);
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
   }
 
 }

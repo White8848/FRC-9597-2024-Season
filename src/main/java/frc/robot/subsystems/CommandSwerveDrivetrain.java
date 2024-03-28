@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -14,13 +15,16 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+import frc.robot.Constants.DraveTrainConstants;;
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem
@@ -31,8 +35,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
+    private SwerveRequest.ApplyChassisSpeeds driveAuto = new SwerveRequest.ApplyChassisSpeeds();
 
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(DraveTrainConstants.MaxSpeed * DraveTrainConstants.DeadBand).withRotationalDeadband(DraveTrainConstants.MaxAngularRate * DraveTrainConstants.DeadBand) // Add a 5% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SwerveRequest.FieldCentricFacingAngle driveHeading = new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(DraveTrainConstants.MaxSpeed * DraveTrainConstants.DeadBand).withRotationalDeadband(DraveTrainConstants.MaxAngularRate * DraveTrainConstants.DeadBand) // Add a 5% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
@@ -44,7 +55,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-        
+
+        driveHeading.HeadingController.setPID(5.0, 0.0, 0.0);
+
         // Configure AutoBuilder last
         AutoBuilder.configureHolonomic(
                 this::getPose, // Robot pose supplier
@@ -79,24 +92,48 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public Pose2d getPose(){
+    public Pose2d getPose() {
         return this.getState().Pose;
     }
 
-    public void resetPose(Pose2d newPose){
+    public void resetPose(Pose2d newPose) {
         this.seedFieldRelative(newPose);
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
-        return this.m_kinematics.toChassisSpeeds(this.getState().ModuleStates);       
+        return this.m_kinematics.toChassisSpeeds(this.getState().ModuleStates);
     }
 
     public void driveRobotRelative(ChassisSpeeds speeds) {
-        this.setControl(drive.withSpeeds(speeds));
+        this.setControl(driveAuto.withSpeeds(speeds));
     }
 
-    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+    public Rotation2d getRotation() {
+        return this.getState().Pose.getRotation();
+    }
+
+    public Command applyRequest(CommandXboxController Joystick) {
+        return run(() -> {
+            if (Math.abs(Joystick.getRightX()) >= DraveTrainConstants.DeadBand) {
+                this.setControl(drive
+                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) * DraveTrainConstants.MaxSpeed)
+                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) * DraveTrainConstants.MaxSpeed)
+                        .withRotationalRate(this.curveControl(-Joystick.getRightX()) * DraveTrainConstants.MaxAngularRate));
+                DraveTrainConstants.HeadingTarget = this.getRotation();
+            } else {
+                this.setControl(driveHeading
+                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) * DraveTrainConstants.MaxSpeed)
+                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) * DraveTrainConstants.MaxSpeed)
+                        .withTargetDirection(DraveTrainConstants.HeadingTarget));
+            }
+        });
+    }
+
+    public Command resetHead() {
+        return runOnce(() -> {
+            DraveTrainConstants.HeadingTarget = this.getRotation();
+            this.seedFieldRelative();
+        });
     }
 
     private void startSimThread() {
@@ -112,5 +149,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    private double curveControl(double input) {
+        if (input < 0) {
+            return -Math.pow(input, 2);
+        }
+        return Math.pow(input, 2);
     }
 }

@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class Intake extends SubsystemBase {
     private static final String canBusName = "canivore";
-    private final TalonFX m_intakeTalonFX = new TalonFX(8, canBusName);
+    private final TalonFX m_intakeTalonFX = new TalonFX(20, canBusName);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
 

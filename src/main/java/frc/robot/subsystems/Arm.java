@@ -16,8 +16,8 @@ import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 
 public class Arm extends SubsystemBase {
     private static final String canBusName = "canivore";
-    private final TalonFX m_leftTalonFX = new TalonFX(4, canBusName);
-    private final TalonFX m_rightTalonFX = new TalonFX(5, canBusName);
+    private final TalonFX m_leftTalonFX = new TalonFX(25, canBusName);
+    private final TalonFX m_rightTalonFX = new TalonFX(26, canBusName);
     private final DynamicMotionMagicTorqueCurrentFOC m_mmtorquePosition = new DynamicMotionMagicTorqueCurrentFOC(0, 35,
             250, 4000, 0, 0, false, false, false);
 

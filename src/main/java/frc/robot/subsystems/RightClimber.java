@@ -13,7 +13,7 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.CoastOut;
 
 public class RightClimber extends SubsystemBase {
-    private final TalonFX m_TalonFX = new TalonFX(15);
+    private final TalonFX m_TalonFX = new TalonFX(24);
     private final PositionTorqueCurrentFOC m_torquePosition = new PositionTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, false, false,

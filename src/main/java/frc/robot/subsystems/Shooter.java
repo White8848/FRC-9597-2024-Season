@@ -12,8 +12,8 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 
 public class Shooter extends SubsystemBase {
     private static final String canBusName = "canivore";
-    private final TalonFX m_upShooterTalonFX = new TalonFX(6, canBusName);
-    private final TalonFX m_downShooterTalonFX = new TalonFX(7, canBusName);
+    private final TalonFX m_upShooterTalonFX = new TalonFX(21, canBusName);
+    private final TalonFX m_downShooterTalonFX = new TalonFX(22, canBusName);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
 
