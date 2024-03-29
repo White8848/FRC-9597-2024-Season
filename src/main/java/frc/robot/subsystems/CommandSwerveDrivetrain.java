@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
@@ -23,8 +21,11 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Constants.DraveTrainConstants;;
+import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Robot;
+
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem
@@ -38,11 +39,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private SwerveRequest.ApplyChassisSpeeds driveAuto = new SwerveRequest.ApplyChassisSpeeds();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(DraveTrainConstants.MaxSpeed * DraveTrainConstants.DeadBand).withRotationalDeadband(DraveTrainConstants.MaxAngularRate * DraveTrainConstants.DeadBand) // Add a 5% deadband
+            .withDeadband(DriveTrainConstants.MaxSpeed * DriveTrainConstants.DeadBand)
+            .withRotationalDeadband(DriveTrainConstants.MaxAngularRate * DriveTrainConstants.DeadBand)
+            // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final SwerveRequest.FieldCentricFacingAngle driveHeading = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(DraveTrainConstants.MaxSpeed * DraveTrainConstants.DeadBand).withRotationalDeadband(DraveTrainConstants.MaxAngularRate * DraveTrainConstants.DeadBand) // Add a 5% deadband
+            .withDeadband(DriveTrainConstants.MaxSpeed * DriveTrainConstants.DeadBand)
+            .withRotationalDeadband(DriveTrainConstants.MaxAngularRate * DriveTrainConstants.DeadBand)
+            // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
@@ -56,7 +61,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
 
-        driveHeading.HeadingController.setPID(5.0, 0.0, 0.0);
+        driveHeading.HeadingController.setPID(3.0, 0.0, 0.0);
 
         // Configure AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -108,30 +113,35 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         this.setControl(driveAuto.withSpeeds(speeds));
     }
 
-    public Rotation2d getRotation() {
-        return this.getState().Pose.getRotation();
-    }
-
-    public Command applyRequest(CommandXboxController Joystick) {
+    public Command applyRequest(CommandXboxController Joystick, CommandXboxController operatorJoystick) {
         return run(() -> {
-            if (Math.abs(Joystick.getRightX()) >= DraveTrainConstants.DeadBand) {
-                this.setControl(drive
-                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) * DraveTrainConstants.MaxSpeed)
-                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) * DraveTrainConstants.MaxSpeed)
-                        .withRotationalRate(this.curveControl(-Joystick.getRightX()) * DraveTrainConstants.MaxAngularRate));
-                DraveTrainConstants.HeadingTarget = this.getRotation();
-            } else {
-                this.setControl(driveHeading
-                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) * DraveTrainConstants.MaxSpeed)
-                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) * DraveTrainConstants.MaxSpeed)
-                        .withTargetDirection(DraveTrainConstants.HeadingTarget));
+            if(operatorJoystick.y().getAsBoolean() == false) {
+                 this.setControl(drive
+                    .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
+                            DriveTrainConstants.MaxSpeed)
+                    .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
+                            DriveTrainConstants.MaxSpeed)
+                    .withRotationalRate(
+                            -Joystick.getRightX() * DriveTrainConstants.MaxAngularRate));
             }
+            else{
+                this.setControl(driveHeading
+                    .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
+                            DriveTrainConstants.MaxSpeed)
+                    .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
+                            DriveTrainConstants.MaxSpeed)
+                    .withTargetDirection(Rotation2d.fromDegrees(90)));
+            }
+           
+
+            SmartDashboard.putNumber("HeadingTarget", DriveTrainConstants.HeadingTarget.getRadians());
+            SmartDashboard.putNumber("RealHead", this.getState().Pose.getRotation().getRadians());
         });
     }
 
-    public Command resetHead() {
+    public Command resetFieldRelative() {
         return runOnce(() -> {
-            DraveTrainConstants.HeadingTarget = this.getRotation();
+            DriveTrainConstants.HeadingTarget = this.getState().Pose.getRotation();
             this.seedFieldRelative();
         });
     }

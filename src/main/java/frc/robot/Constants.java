@@ -19,7 +19,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;    
   }
 
-  public static class DraveTrainConstants{
+  public static class DriveTrainConstants{
     public static final double MaxSpeed = 6.0; // 6 meters per second desired top speed
     public static final double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     public static final double DeadBand = 0.1;

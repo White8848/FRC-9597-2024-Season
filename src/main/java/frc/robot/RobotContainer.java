@@ -26,13 +26,13 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.RightClimber;
 import frc.robot.subsystems.LeftClimber;
-import frc.robot.Constants.DraveTrainConstants;;
+import frc.robot.Constants.DriveTrainConstants;;
 
 public class RobotContainer implements Sendable {
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  private final Telemetry logger = new Telemetry(DraveTrainConstants.MaxSpeed);
+  private final Telemetry logger = new Telemetry(DriveTrainConstants.MaxSpeed);
 
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
@@ -58,7 +58,7 @@ public class RobotContainer implements Sendable {
   }
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick));
+    drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick,m_operatorJoystick));
 
     // new Trigger(
     // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
@@ -66,10 +66,7 @@ public class RobotContainer implements Sendable {
     // .whileTrue(drivetrain.applyRequest(() -> brake));
 
     // reset the field-centric heading on left bumper press
-    m_driverJoystick.start().onTrue(drivetrain.runOnce(() -> {
-
-      drivetrain.seedFieldRelative();
-    }));
+    m_driverJoystick.start().onTrue(drivetrain.resetFieldRelative());
 
     drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -87,14 +84,13 @@ public class RobotContainer implements Sendable {
 
     m_driverJoystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
 
-    m_driverJoystick.povUp().onTrue(m_arm.armUp());
-    m_driverJoystick.povDown().onTrue(m_arm.armDown());
-
     //////////////////////////// Climber ////////////////////////////
-    m_operatorJoystick.rightBumper().whileTrue(m_rightClimber.Up());
-    m_operatorJoystick.rightTrigger().whileTrue(m_rightClimber.Down());
-    m_operatorJoystick.leftBumper().whileTrue(m_leftClimber.Up());
-    m_operatorJoystick.leftTrigger().whileTrue(m_leftClimber.Down());
+    m_driverJoystick.povUp().whileTrue(m_rightClimber.Up());
+    m_driverJoystick.povLeft().whileTrue(m_rightClimber.Down());
+    m_driverJoystick.povRight().whileTrue(m_leftClimber.Up());
+    m_driverJoystick.povDown().whileTrue(m_leftClimber.Down());
+
+
   }
 
   @Override
