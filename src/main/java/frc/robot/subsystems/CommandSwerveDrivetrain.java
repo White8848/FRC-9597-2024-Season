@@ -12,6 +12,8 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -22,8 +24,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.controller.PIDController;
 
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Robot;
 
 /**
@@ -35,6 +39,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private PIDController autoHeadingController = new PIDController(5.0, 0.0, 0.0);
+    private double Headingtarget = 0;
 
     private SwerveRequest.ApplyChassisSpeeds driveAuto = new SwerveRequest.ApplyChassisSpeeds();
 
@@ -115,24 +121,24 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Command applyRequest(CommandXboxController Joystick, CommandXboxController operatorJoystick) {
         return run(() -> {
-            if(operatorJoystick.y().getAsBoolean() == false) {
-                 this.setControl(drive
-                    .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
-                            DriveTrainConstants.MaxSpeed)
-                    .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
-                            DriveTrainConstants.MaxSpeed)
-                    .withRotationalRate(
-                            -Joystick.getRightX() * DriveTrainConstants.MaxAngularRate));
-            }
-            else{
+            if (operatorJoystick.y().getAsBoolean() == false) {
+                this.setControl(drive
+                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
+                                DriveTrainConstants.MaxSpeed)
+                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
+                                DriveTrainConstants.MaxSpeed)
+                        .withRotationalRate(headingControl(-Joystick.getRightX(),
+                                this.getState().Pose.getRotation().getRadians())));
+                // -Joystick.getRightX() * DriveTrainConstants.MaxAngularRate));
+            } else {
                 this.setControl(driveHeading
-                    .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
-                            DriveTrainConstants.MaxSpeed)
-                    .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
-                            DriveTrainConstants.MaxSpeed)
-                    .withTargetDirection(Rotation2d.fromDegrees(90)));
+                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
+                                DriveTrainConstants.MaxSpeed)
+                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
+                                DriveTrainConstants.MaxSpeed)
+                        .withTargetDirection(Rotation2d.fromDegrees(-90)));
+                Headingtarget = this.getState().Pose.getRotation().getRadians();
             }
-           
 
             SmartDashboard.putNumber("HeadingTarget", DriveTrainConstants.HeadingTarget.getRadians());
             SmartDashboard.putNumber("RealHead", this.getState().Pose.getRotation().getRadians());
@@ -144,6 +150,40 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             DriveTrainConstants.HeadingTarget = this.getState().Pose.getRotation();
             this.seedFieldRelative();
         });
+    }
+
+    private double headingControl(double joystickInput, double current) {
+        if (Math.abs(joystickInput) <= DriveTrainConstants.RotationalDeadband) {
+            return 0;
+        } else {
+            joystickInput = curveControl(joystickInput);
+        }
+        // speed is in radians per second
+        Headingtarget += joystickInput * DriveTrainConstants.MaxAngularRate * DriveTrainConstants.timestampPeriod;
+        double error = Headingtarget - current;
+        while (Math.abs(error) > Math.PI) {
+            if (error > Math.PI) {
+                error -= 2 * Math.PI;
+            } else if (error < -Math.PI) {
+                error += 2 * Math.PI;
+            }
+        }
+
+        double output = autoHeadingController.calculate(0, error);
+
+        return output;
+    }
+
+    @Override
+    public void periodic() {
+        LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        if (limelightMeasurement.tagCount >= 2) {
+            this.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            this.addVisionMeasurement(
+                    limelightMeasurement.pose,
+                    limelightMeasurement.timestampSeconds);
+        }
+        SmartDashboard.putNumber("VisionTagNumber", limelightMeasurement.tagCount);
     }
 
     private void startSimThread() {
