@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,6 +54,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             .withRotationalDeadband(DriveTrainConstants.MaxAngularRate * DriveTrainConstants.DeadBand)
             // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
             SwerveModuleConstants... modules) {
@@ -120,14 +123,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public Command applyRequest(CommandXboxController Joystick, CommandXboxController operatorJoystick) {
         return run(() -> {
             if (operatorJoystick.y().getAsBoolean() == false) {
-                this.setControl(drive
-                        .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
-                                DriveTrainConstants.MaxSpeed)
-                        .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
-                                DriveTrainConstants.MaxSpeed)
-                        .withRotationalRate(headingControl(-Joystick.getRightX(),
-                                this.getState().Pose.getRotation().getRadians())));
-                // -Joystick.getRightX() * DriveTrainConstants.MaxAngularRate));
+                if (Math.abs(Joystick.getLeftY()) < DriveTrainConstants.DeadBand
+                        && Math.abs(Joystick.getLeftX()) < DriveTrainConstants.DeadBand
+                        && Math.abs(Joystick.getRightX()) < DriveTrainConstants.RotationalDeadband) {
+                    this.setControl(brake);
+                } else {
+                    this.setControl(drive
+                            .withVelocityX(this.curveControl(-Joystick.getLeftY()) *
+                                    DriveTrainConstants.MaxSpeed)
+                            .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
+                                    DriveTrainConstants.MaxSpeed)
+                            .withRotationalRate(headingControl(-Joystick.getRightX(),
+                                    this.getState().Pose.getRotation().getRadians())));
+                }
             } else {
                 this.setControl(driveHeading
                         .withVelocityX(this.curveControl(-Joystick.getLeftY()) *

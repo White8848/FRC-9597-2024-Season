@@ -21,6 +21,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.RightClimber;
 import frc.robot.subsystems.LeftClimber;
+import frc.robot.subsystems.LedStrips;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.commands.ClimberAutoCommand;
 
