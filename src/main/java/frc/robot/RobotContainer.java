@@ -4,17 +4,12 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -80,9 +75,9 @@ public class RobotContainer implements Sendable {
     m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
 
     m_driverJoystick.b()
-    .whileTrue(m_intake.outPut(-35.0))
-    .whileTrue(m_shooter.commonShootCommand(40.0, false))
-    .onFalse(m_arm.armBackZero());
+        .whileTrue(m_intake.outPut(-35.0))
+        .whileTrue(m_shooter.commonShootCommand(40.0, false))
+        .onFalse(m_arm.armBackZero());
 
     // m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
 

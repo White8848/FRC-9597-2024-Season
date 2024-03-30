@@ -19,8 +19,7 @@ public class RightClimber extends SubsystemBase {
             false);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, false, false,
             false);
-    private final NeutralOut m_neutralOut = new NeutralOut();
-    private final CoastOut m_coastOut = new CoastOut();
+
     public double positionTarget = 0;
 
     private final Timer m_timer = new Timer();

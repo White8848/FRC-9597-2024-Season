@@ -13,7 +13,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,7 +27,6 @@ import edu.wpi.first.math.controller.PIDController;
 
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.LimelightHelpers;
-import frc.robot.Robot;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
