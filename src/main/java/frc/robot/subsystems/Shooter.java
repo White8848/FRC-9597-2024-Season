@@ -112,9 +112,9 @@ public class Shooter extends SubsystemBase {
         toApply.Slot0.kI = 0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
         toApply.Slot0.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
 
-        // Peak output of 40 amps
-        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
-        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+        // Peak output of 80 amps
+        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -80;
 
         cfg.apply(toApply);
     }
