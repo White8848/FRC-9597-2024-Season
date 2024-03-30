@@ -22,6 +22,8 @@ public class LeftClimber extends SubsystemBase {
     private final NeutralOut m_neutralOut = new NeutralOut();
     private final CoastOut m_coastOut = new CoastOut();
 
+    public double positionTarget = 0;
+
     private final Timer m_timer = new Timer();
 
     public LeftClimber() {
@@ -29,26 +31,38 @@ public class LeftClimber extends SubsystemBase {
         m_timer.start();
     }
 
-    public Command Up(){
+    public Command Up() {
         return runEnd(
-            () -> setVelocity(1.0),
-            () -> setVelocity(0.0)
-        );
+                () -> {
+                    setVelocity(40.0);
+                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                },
+
+                () -> {
+                    setVelocity(0.0);
+                    setPosition(positionTarget);
+                });
     }
 
-    public Command Down(){
+    public Command Down() {
         return runEnd(
-            () -> setVelocity(-1.0),
-            () -> setVelocity(0.0)
-        );
+                () -> {
+                    setVelocity(-40.0);
+                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                },
+
+                () -> {
+                    setVelocity(0.0);
+                    setPosition(positionTarget);
+                });
     }
 
-    private void setVelocity(double Velocity) {
-        m_TalonFX.setControl(m_torqueVelocity.withVelocity(Velocity));
+    public void setVelocity(double velocity) {
+        m_TalonFX.setControl(m_torqueVelocity.withVelocity(velocity));
     }
 
-    private void setBreak(TalonFX talonFX) {
-        talonFX.setControl(m_neutralOut);
+    public void setPosition(double position) {
+        m_TalonFX.setControl(m_torquePosition.withPosition(position));
     }
 
     @Override
@@ -59,17 +73,17 @@ public class LeftClimber extends SubsystemBase {
     private void initializeTalonFX(TalonFXConfigurator cfg) {
         var toApply = new TalonFXConfiguration();
 
-        toApply.Slot0.kP = 0.0;
-        toApply.Slot0.kI = 0.0;
-        toApply.Slot0.kD = 0.0;
+        toApply.Slot0.kP = 10.0;
+        toApply.Slot0.kI = 0.01;
+        toApply.Slot0.kD = 0.5;
 
         toApply.Slot1.kP = 5.0;
-        toApply.Slot1.kI = 0.1;
-        toApply.Slot1.kD = 0.001;
+        toApply.Slot1.kI = 0.0;
+        toApply.Slot1.kD = 0.0;
 
         // Peak output of 40 amps
-        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
-        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -80;
 
         toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
