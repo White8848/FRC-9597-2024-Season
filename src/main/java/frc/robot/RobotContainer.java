@@ -26,7 +26,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.RightClimber;
 import frc.robot.subsystems.LeftClimber;
-import frc.robot.Constants.DriveTrainConstants;;
+import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.commands.ClimberAutoCommand;
 
 public class RobotContainer implements Sendable {
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -58,7 +59,7 @@ public class RobotContainer implements Sendable {
   }
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick,m_operatorJoystick));
+    drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick, m_operatorJoystick));
 
     // new Trigger(
     // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
@@ -76,20 +77,19 @@ public class RobotContainer implements Sendable {
 
     m_driverJoystick.x().whileTrue(m_intake.smartUpTake(25.0));
 
-    m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
+    m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(80.0, true));
 
-    m_driverJoystick.y().whileTrue(m_intake.outPut(5.0)).whileTrue(m_shooter.commonShootCommand(5.0, true));
+    m_driverJoystick.y().whileTrue(m_intake.outPut(30.0)).whileTrue(m_shooter.commonShootCommand(30.0, true));
 
     // m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
 
     m_driverJoystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
 
     //////////////////////////// Climber ////////////////////////////
-    m_driverJoystick.povUp().whileTrue(m_rightClimber.Up());
-    m_driverJoystick.povLeft().whileTrue(m_rightClimber.Down());
-    m_driverJoystick.povRight().whileTrue(m_leftClimber.Up());
-    m_driverJoystick.povDown().whileTrue(m_leftClimber.Down());
-
+    m_driverJoystick.povRight().whileTrue(m_rightClimber.Down());
+    m_driverJoystick.povLeft().whileTrue(m_leftClimber.Down());
+    m_driverJoystick.povUp().whileTrue(new ClimberAutoCommand(m_leftClimber, m_rightClimber, "UP"));
+    m_driverJoystick.povDown().whileTrue(new ClimberAutoCommand(m_leftClimber, m_rightClimber, "DOWN"));
 
   }
 
