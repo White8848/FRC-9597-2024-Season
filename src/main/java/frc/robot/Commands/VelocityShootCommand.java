@@ -33,7 +33,7 @@ public class VelocityShootCommand extends Command {
     @Override
     public void execute() {
         var m_shooterVelocity = m_shooter.getUpShooterTalonFX().getVelocity().getValue();
-        if (m_timer.get() > 0.5 && m_shooterVelocity > m_shooterVelocitySet * 0.9) {
+        if (m_timer.get() > 0.2 && m_shooterVelocity > m_shooterVelocitySet * 0.9) {
             m_intake.setVelocity(m_intakeVelocitySet);
         }
     }

@@ -39,7 +39,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private PIDController autoHeadingController = new PIDController(5.0, 0.0, 0.0);
+    private PIDController autoHeadingController = new PIDController(6.0, 0.0, 0.0);
     private double Headingtarget = 0;
 
     private SwerveRequest.ApplyChassisSpeeds driveAuto = new SwerveRequest.ApplyChassisSpeeds();
@@ -67,7 +67,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
 
-        driveHeading.HeadingController.setPID(3.0, 0.0, 0.0);
+        driveHeading.HeadingController.setPID(4.0, 0.0, 0.0);
 
         // Configure AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -136,7 +136,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                                 DriveTrainConstants.MaxSpeed)
                         .withVelocityY(this.curveControl(-Joystick.getLeftX()) *
                                 DriveTrainConstants.MaxSpeed)
-                        .withTargetDirection(Rotation2d.fromDegrees(-90)));
+                        .withTargetDirection(Rotation2d.fromDegrees(90)));
                 Headingtarget = this.getState().Pose.getRotation().getRadians();
             }
 

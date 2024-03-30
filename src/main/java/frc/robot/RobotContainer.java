@@ -75,21 +75,41 @@ public class RobotContainer implements Sendable {
     m_driverJoystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
     m_driverJoystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
 
-    m_driverJoystick.x().whileTrue(m_intake.smartUpTake(25.0));
+    m_driverJoystick.x().whileTrue(m_intake.smartUpTake(30));
 
-    m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(80.0, true));
+    m_driverJoystick.a().whileTrue(m_intake.outPut()).whileTrue(m_shooter.commonShootCommand(20.0, true));
 
-    m_driverJoystick.y().whileTrue(m_intake.outPut(30.0)).whileTrue(m_shooter.commonShootCommand(30.0, true));
+    m_driverJoystick.b()
+    .whileTrue(m_intake.outPut(-35.0))
+    .whileTrue(m_shooter.commonShootCommand(40.0, false))
+    .onFalse(m_arm.armBackZero());
 
     // m_joystick.b().whileTrue(m_intake.upTake(15.0)).whileTrue(m_shooter.commonShootCommand());
 
-    m_driverJoystick.b().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
+    m_driverJoystick.y().whileTrue(new VelocityShootCommand(m_intake, m_shooter));
 
     //////////////////////////// Climber ////////////////////////////
     m_driverJoystick.povRight().whileTrue(m_rightClimber.Down());
     m_driverJoystick.povLeft().whileTrue(m_leftClimber.Down());
     m_driverJoystick.povUp().whileTrue(new ClimberAutoCommand(m_leftClimber, m_rightClimber, "UP"));
     m_driverJoystick.povDown().whileTrue(new ClimberAutoCommand(m_leftClimber, m_rightClimber, "DOWN"));
+
+    m_operatorJoystick.povUp().onTrue(m_arm.armUp());
+    m_operatorJoystick.povDown().onTrue(m_arm.armDown());
+    m_operatorJoystick.povRight().onTrue(m_arm.armUpMicro());
+    m_operatorJoystick.povLeft().onTrue(m_arm.armDownMicro());
+
+    m_operatorJoystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
+    m_operatorJoystick.rightBumper().whileTrue(m_shooter.commonShootCommand());
+    m_operatorJoystick.leftTrigger().whileTrue(m_shooter.differentialShootDownCommand());
+    m_operatorJoystick.rightTrigger().whileTrue(m_shooter.farShootCommand());
+
+    m_operatorJoystick.x().onTrue(m_arm.armBackZero());
+    m_operatorJoystick.y().onTrue(m_arm.armAMP());
+    // operatorController.a().onTrue(m_arm.armMid());
+    // operatorController.b().onTrue(m_arm.armPod());
+    m_operatorJoystick.a().whileTrue(m_arm.armMid()).whileTrue(m_shooter.farShootCommand());
+    m_operatorJoystick.b().whileTrue(m_arm.armPod()).whileTrue(m_shooter.farShootCommand());
 
   }
 

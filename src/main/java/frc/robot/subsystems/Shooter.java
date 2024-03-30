@@ -9,6 +9,15 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
     private static final String canBusName = "canivore";
@@ -35,39 +44,31 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command commonShootCommand() {
-        return startEnd(
-                () -> setVelocity(40.0),
-                () -> setVelocity(0.0));
-
-    }
-
-    public Command commonShootCommand(double velocity, boolean oppositeDirection) {
+        return startEnd(() -> setVelocity(60.0), () -> setVelocity(0.0));
+      }
+    
+      public Command commonShootCommand(double velocity, boolean oppositeDirection) {
         if (oppositeDirection == true) {
-            return startEnd(
-                    () -> setVelocity(-velocity),
-                    () -> setVelocity(0.0));
+          return startEnd(() -> setVelocity(-velocity), () -> setVelocity(0.0));
         }
         if (oppositeDirection == false) {
-            return startEnd(
-                    () -> setVelocity(velocity),
-                    () -> setVelocity(0.0));
+          return startEnd(() -> setVelocity(velocity), () -> setVelocity(0.0));
         }
         return runOnce(() -> setVelocity(0.0));
-
-    }
-
-    public Command differentialShootUpCommand() {
-        return startEnd(
-                () -> setVelocity(45.0, 30.0),
-                () -> setVelocity(0.0));
-    }
-
-    public Command differentialShootDownCommand() {
-        return startEnd(
-                () -> setVelocity(60.0, 70.0),
-                () -> setVelocity(0.0));
-    }
-
+      }
+    
+      public Command differentialShootUpCommand() {
+        return startEnd(() -> setVelocity(60, 18.0), () -> setVelocity(0.0)); // 50,20
+      }
+    
+      public Command farShootCommand() {
+        return startEnd(() -> setVelocity(62.0, 50.0), () -> setVelocity(0.0));
+      }
+    
+      public Command differentialShootDownCommand() {
+        return startEnd(() -> setVelocity(75.0, 25.0), () -> setVelocity(0.0));
+      }
+      
     public void setVelocity(double velocity) {
         var desiredRotationsPerSecond = velocity;
 
@@ -112,9 +113,9 @@ public class Shooter extends SubsystemBase {
         toApply.Slot0.kI = 0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
         toApply.Slot0.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
 
-        // Peak output of 80 amps
-        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+        // Peak output of 40 amps
+        toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        toApply.TorqueCurrent.PeakReverseTorqueCurrent = -40;
 
         cfg.apply(toApply);
     }
