@@ -23,10 +23,11 @@ public final class Constants {
     public static final double MaxSpeed = 6.0; // 6 meters per second desired top speed
     public static final double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     public static final double DeadBand = 0.1;
-    public static final double RotationalDeadband = 0.05;
+    public static final double RotationalDeadband = 0.1;
 
     public static final double timestampPeriod = 0.02;
 
     public static Rotation2d HeadingTarget = new Rotation2d();
   }
+
 }
