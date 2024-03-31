@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.networktables.DoublePublisher;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -13,6 +14,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import frc.robot.subsystems.LedStrips;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -21,6 +23,7 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_intakeTalonFX = new TalonFX(20, canBusName);
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
             false);
+    private LedStrips m_LedStrips = LedStrips.getIns();
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -66,17 +69,22 @@ public class Intake extends SubsystemBase {
                     if (m_stop == true && m_shooter.isShooterOn() == false) {
                         if (m_timer.get() < 0.1)
                             setVelocity(0.0);
-                        else if (m_timer.get() < 0.32)
-                            setVelocity(6.0);
+                        else if (m_timer.get() < 0.32){
+                    setVelocity(6.0);
+                    m_LedStrips.setRGB(0, 255, 0);
+                        }
                         else
                             setVelocity(0.0);
-
                     } else {
                         setVelocity(-velocity);
                         m_stop = false;
+                        Commands.waitSeconds(1);
+                        m_LedStrips.setRGB(255, 0, 0);
                     }
                 },
                 () -> setVelocity(0.0));
+                
+
     }
 
     public Command outPut() {

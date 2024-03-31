@@ -68,7 +68,7 @@ public class RobotContainer implements Sendable {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     m_driverJoystick.rightTrigger().whileTrue(m_shooter.commonShootCommand());
-    m_driverJoystick.rightBumper().whileTrue(m_shooter.differentialShootDownCommand());
+    m_driverJoystick.rightBumper().whileTrue(m_shooter.farShootCommand());
     m_driverJoystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
 
     m_driverJoystick.x().whileTrue(m_intake.smartUpTake(30));
@@ -96,16 +96,20 @@ public class RobotContainer implements Sendable {
     m_operatorJoystick.povLeft().onTrue(m_arm.armDownMicro());
 
     m_operatorJoystick.leftBumper().whileTrue(m_shooter.differentialShootUpCommand());
-    m_operatorJoystick.rightBumper().whileTrue(m_shooter.commonShootCommand());
-    m_operatorJoystick.leftTrigger().whileTrue(m_shooter.differentialShootDownCommand());
-    m_operatorJoystick.rightTrigger().whileTrue(m_shooter.farShootCommand());
+    m_operatorJoystick.leftTrigger().whileTrue(m_shooter.farShootCommand());
 
-    m_operatorJoystick.x().onTrue(m_arm.armBackZero());
+    // m_operatorJoystick.rightBumper().whileTrue(m_shooter.commonShootCommand());
+    // m_operatorJoystick.leftTrigger().whileTrue(m_shooter.differentialShootDownCommand());
+    // m_operatorJoystick.rightTrigger().whileTrue(m_shooter.farShootCommand());
+
+
+    m_operatorJoystick.x().whileTrue(m_arm.armPod()).whileTrue(m_shooter.farShootCommand());
     m_operatorJoystick.y().onTrue(m_arm.armAMP());
     // operatorController.a().onTrue(m_arm.armMid());
     // operatorController.b().onTrue(m_arm.armPod());
     m_operatorJoystick.a().whileTrue(m_arm.armMid()).whileTrue(m_shooter.farShootCommand());
     m_operatorJoystick.b().whileTrue(m_arm.armPod()).whileTrue(m_shooter.farShootCommand());
+    m_operatorJoystick.rightBumper().onTrue(m_arm.armBackZero());
 
   }
 

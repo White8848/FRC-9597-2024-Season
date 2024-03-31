@@ -49,15 +49,15 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command differentialShootUpCommand() {
-    return startEnd(() -> setVelocity(60, 18.0), () -> setVelocity(0.0)); // 50,20
+    return startEnd(() -> setVelocity(55, 18.0), () -> setVelocity(0.0)); // 60,18
   }
 
   public Command farShootCommand() {
-    return startEnd(() -> setVelocity(62.0, 50.0), () -> setVelocity(0.0));
+    return startEnd(() -> setVelocity(65.0, 50.0), () -> setVelocity(0.0));
   }
 
   public Command differentialShootDownCommand() {
-    return startEnd(() -> setVelocity(75.0, 25.0), () -> setVelocity(0.0));
+    return startEnd(() -> setVelocity(78.0, 55.0), () -> setVelocity(0.0));
   }
 
   public void setVelocity(double velocity) {
