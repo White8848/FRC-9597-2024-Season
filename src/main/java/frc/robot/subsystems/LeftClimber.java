@@ -63,6 +63,21 @@ public class LeftClimber extends SubsystemBase {
         m_TalonFX.setControl(m_torquePosition.withPosition(position));
     }
 
+    public Command joyControl(double value) {
+        return run(() -> {
+            if (value > 0.2) {
+                setVelocity(40.0);
+                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+            } else if (value < 0.2) {
+                setVelocity(-40.0);
+                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+            } else {
+                setVelocity(0.0);
+                setPosition(positionTarget);
+            }
+        });
+    }
+
     @Override
     public void periodic() {
 

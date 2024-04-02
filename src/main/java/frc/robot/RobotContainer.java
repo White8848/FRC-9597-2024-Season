@@ -57,11 +57,6 @@ public class RobotContainer implements Sendable {
   private void configureBindings() {
     drivetrain.setDefaultCommand(drivetrain.applyRequest(m_driverJoystick, m_operatorJoystick));
 
-    // new Trigger(
-    // () -> ((Math.abs(m_joystick.getLeftY()) + Math.abs(m_joystick.getLeftX())
-    // + Math.abs(m_joystick.getRightX())) < 0.08) ? true : false)
-    // .whileTrue(drivetrain.applyRequest(() -> brake));
-
     // reset the field-centric heading on left bumper press
     m_driverJoystick.start().onTrue(drivetrain.resetFieldRelative());
 
@@ -106,6 +101,9 @@ public class RobotContainer implements Sendable {
     // operatorController.b().onTrue(m_arm.armPod());
     m_operatorJoystick.a().whileTrue(m_arm.armMid()).whileTrue(m_shooter.farShootCommand());
     m_operatorJoystick.b().whileTrue(m_arm.armPod()).whileTrue(m_shooter.farShootCommand());
+
+    m_leftClimber.setDefaultCommand(m_leftClimber.joyControl(m_operatorJoystick.getLeftY()));
+    m_rightClimber.setDefaultCommand(m_rightClimber.joyControl(m_operatorJoystick.getRightY()));
 
   }
 

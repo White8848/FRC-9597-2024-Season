@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -53,6 +54,21 @@ public class RightClimber extends SubsystemBase {
                     setVelocity(0.0);
                     setPosition(positionTarget);
                 });
+    }
+
+    public Command joyControl(double value) {
+        return run(() -> {
+            if (value > 0.2) {
+                setVelocity(40.0);
+                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+            } else if (value < 0.2) {
+                setVelocity(-40.0);
+                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+            } else {
+                setVelocity(0.0);
+                setPosition(positionTarget);
+            }
+        });
     }
 
     public void setVelocity(double Velocity) {
