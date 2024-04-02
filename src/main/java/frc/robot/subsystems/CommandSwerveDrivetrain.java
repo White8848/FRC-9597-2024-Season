@@ -182,14 +182,26 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-        if (limelightMeasurement.tagCount >= 2) {
+        LimelightHelpers.PoseEstimate limelightMeasurement_Front = LimelightHelpers
+                .getBotPoseEstimate_wpiBlue("limelight-front");
+        LimelightHelpers.PoseEstimate limelightMeasurement_Left = LimelightHelpers
+                .getBotPoseEstimate_wpiBlue("limelight-left");
+
+        if (limelightMeasurement_Front.tagCount >= 2) {
             // this.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             this.addVisionMeasurement(
-                    limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds);
+                    limelightMeasurement_Front.pose,
+                    limelightMeasurement_Front.timestampSeconds);
         }
-        SmartDashboard.putNumber("VisionTagNumber", limelightMeasurement.tagCount);
+        if (limelightMeasurement_Left.tagCount >= 2) {
+            // this.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            this.addVisionMeasurement(
+                    limelightMeasurement_Left.pose,
+                    limelightMeasurement_Left.timestampSeconds);
+        }
+        SmartDashboard.putNumber("VisionTagNumber", limelightMeasurement_Front.tagCount);
+        SmartDashboard.putNumber("VisionTagNumber2", limelightMeasurement_Left.tagCount);
+
     }
 
     private void startSimThread() {
