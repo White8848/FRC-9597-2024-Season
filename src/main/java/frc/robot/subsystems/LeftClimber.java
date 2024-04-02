@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,6 +14,8 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.CoastOut;
 
+import frc.robot.Constants.Climber;
+
 public class LeftClimber extends SubsystemBase {
     private final TalonFX m_TalonFX = new TalonFX(23);
     private final PositionTorqueCurrentFOC m_torquePosition = new PositionTorqueCurrentFOC(0, 0, 0, 0, false, false,
@@ -20,25 +23,21 @@ public class LeftClimber extends SubsystemBase {
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, false, false,
             false);
 
-    public double positionTarget = 0;
-
-    private final Timer m_timer = new Timer();
-
     public LeftClimber() {
         initializeTalonFX(m_TalonFX.getConfigurator());
-        m_timer.start();
+        Climber.LeftClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
     }
 
     public Command Up() {
         return runEnd(
                 () -> {
                     setVelocity(40.0);
-                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                    Climber.LeftClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
                 },
 
                 () -> {
                     setVelocity(0.0);
-                    setPosition(positionTarget);
+                    setPosition(Climber.LeftClimberTarget);
                 });
     }
 
@@ -46,12 +45,12 @@ public class LeftClimber extends SubsystemBase {
         return runEnd(
                 () -> {
                     setVelocity(-40.0);
-                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                    Climber.LeftClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
                 },
 
                 () -> {
                     setVelocity(0.0);
-                    setPosition(positionTarget);
+                    setPosition(Climber.LeftClimberTarget);
                 });
     }
 
@@ -61,21 +60,6 @@ public class LeftClimber extends SubsystemBase {
 
     public void setPosition(double position) {
         m_TalonFX.setControl(m_torquePosition.withPosition(position));
-    }
-
-    public Command joyControl(double value) {
-        return run(() -> {
-            if (value > 0.2) {
-                setVelocity(40.0);
-                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
-            } else if (value < 0.2) {
-                setVelocity(-40.0);
-                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
-            } else {
-                setVelocity(0.0);
-                setPosition(positionTarget);
-            }
-        });
     }
 
     @Override

@@ -14,6 +14,8 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.CoastOut;
 
+import frc.robot.Constants.Climber;
+
 public class RightClimber extends SubsystemBase {
     private final TalonFX m_TalonFX = new TalonFX(24);
     private final PositionTorqueCurrentFOC m_torquePosition = new PositionTorqueCurrentFOC(0, 0, 0, 0, false, false,
@@ -21,25 +23,21 @@ public class RightClimber extends SubsystemBase {
     private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, false, false,
             false);
 
-    public double positionTarget = 0;
-
-    private final Timer m_timer = new Timer();
-
     public RightClimber() {
         initializeTalonFX(m_TalonFX.getConfigurator());
-        m_timer.start();
+        Climber.RightClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
     }
 
     public Command Up() {
         return runEnd(
                 () -> {
                     setVelocity(40.0);
-                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                    Climber.RightClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
                 },
 
                 () -> {
                     setVelocity(0.0);
-                    setPosition(positionTarget);
+                    setPosition(Climber.RightClimberTarget);
                 });
     }
 
@@ -47,28 +45,13 @@ public class RightClimber extends SubsystemBase {
         return runEnd(
                 () -> {
                     setVelocity(-40.0);
-                    positionTarget = m_TalonFX.getPosition().getValueAsDouble();
+                    Climber.RightClimberTarget = m_TalonFX.getPosition().getValueAsDouble();
                 },
 
                 () -> {
                     setVelocity(0.0);
-                    setPosition(positionTarget);
+                    setPosition(Climber.RightClimberTarget);
                 });
-    }
-
-    public Command joyControl(double value) {
-        return run(() -> {
-            if (value > 0.2) {
-                setVelocity(40.0);
-                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
-            } else if (value < 0.2) {
-                setVelocity(-40.0);
-                positionTarget = m_TalonFX.getPosition().getValueAsDouble();
-            } else {
-                setVelocity(0.0);
-                setPosition(positionTarget);
-            }
-        });
     }
 
     public void setVelocity(double Velocity) {

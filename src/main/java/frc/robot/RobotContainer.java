@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -102,9 +103,10 @@ public class RobotContainer implements Sendable {
     m_operatorJoystick.a().whileTrue(m_arm.armMid()).whileTrue(m_shooter.farShootCommand());
     m_operatorJoystick.b().whileTrue(m_arm.armPod()).whileTrue(m_shooter.farShootCommand());
 
-    m_leftClimber.setDefaultCommand(m_leftClimber.joyControl(m_operatorJoystick.getLeftY()));
-    m_rightClimber.setDefaultCommand(m_rightClimber.joyControl(m_operatorJoystick.getRightY()));
-
+    new Trigger(() -> m_operatorJoystick.getLeftY() < -0.2 ? true : false).whileTrue(m_leftClimber.Up());
+    new Trigger(() -> m_operatorJoystick.getLeftY() > 0.2 ? true : false).whileTrue(m_leftClimber.Down());
+    new Trigger(() -> m_operatorJoystick.getRightY() < -0.2 ? true : false).whileTrue(m_rightClimber.Up());
+    new Trigger(() -> m_operatorJoystick.getRightY() > 0.2 ? true : false).whileTrue(m_rightClimber.Down());
   }
 
   @Override
