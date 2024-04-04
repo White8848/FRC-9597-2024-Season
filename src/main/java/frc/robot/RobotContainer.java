@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveTrainConstants;
 // import frc.robot.commands.ClimberAutoCommand;
 import frc.robot.commands.PositionClimbLeftPID;
@@ -53,8 +54,12 @@ public class RobotContainer implements Sendable {
 
   private final SendableChooser<Command> autoChooser;
 
+  private final Trigger m_seesNote;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    m_seesNote = new Trigger(m_intake.seesNote());
 
     // Configure the Named Commands
 
@@ -144,8 +149,17 @@ public class RobotContainer implements Sendable {
     // .andThen(Commands.runOnce(() -> m_LedStrips.setRGB(255, 0, 0))));
     m_driverJoystick
         .x()
-        .onTrue(m_intake.upTake(30))
-        .onFalse(m_intake.outPut(4).withTimeout(.325).andThen(m_intake.upTake(0)));
+        .onTrue(m_intake.upTake(30).alongWith(m_LedStrips.setRGB_CMD(0, 15, 254)))
+        .onFalse(
+            m_intake
+                .outPut(4)
+                .withTimeout(.325)
+                .andThen(m_intake.upTake(0))
+                .alongWith(m_LedStrips.setRGB_CMD(254, 0, 0)));
+
+    m_seesNote
+        .onTrue(m_LedStrips.setRGB_CMD(254, 254, 254).repeatedly())
+        .onFalse(m_LedStrips.setRGB_CMD(255, 0, 0));
 
     // .onFalse(
     // Commands.waitSeconds(1);
