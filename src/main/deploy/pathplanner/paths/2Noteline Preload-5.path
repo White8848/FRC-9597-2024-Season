@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.42,
-        "y": 5.53
+        "x": 0.77,
+        "y": 4.28
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6731732885431088,
-        "y": 6.447090813256771
+        "x": 1.8527875727163086,
+        "y": 0.18502566068002843
       },
       "isLocked": false,
-      "linkedName": "2 Piece Start"
+      "linkedName": "2NoteLine Start"
     },
     {
       "anchor": {
-        "x": 2.95,
-        "y": 7.0
+        "x": 8.41632943052363,
+        "y": 0.75
       },
       "prevControl": {
-        "x": 1.3860951711168494,
-        "y": 7.109268459659958
+        "x": 7.744394136475105,
+        "y": 2.668423955471874
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Note A"
+      "linkedName": "Note 5"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "Infeed",
-      "waypointRelativePos": 0.2,
+      "waypointRelativePos": 0.6,
       "command": {
         "type": "parallel",
         "data": {
@@ -57,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0,
+    "rotation": 120.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": 120.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

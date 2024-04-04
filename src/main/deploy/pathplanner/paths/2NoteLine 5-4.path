@@ -3,52 +3,34 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.42,
-        "y": 5.53
+        "x": 0.77,
+        "y": 4.28
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6731732885431088,
-        "y": 6.447090813256771
+        "x": 1.2684960126741138,
+        "y": 0.7693172207222235
       },
       "isLocked": false,
-      "linkedName": "2 Piece Start"
+      "linkedName": "2NoteLine Start"
     },
     {
       "anchor": {
-        "x": 2.95,
-        "y": 7.0
+        "x": 8.182612806506752,
+        "y": 2.4442863595098485
       },
       "prevControl": {
-        "x": 1.3860951711168494,
-        "y": 7.109268459659958
+        "x": 7.28669908110872,
+        "y": 0.8374845693938137
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Note A"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [
-    {
-      "name": "Infeed",
-      "waypointRelativePos": 0.2,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "Intake"
-              }
-            }
-          ]
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 4.0,
@@ -57,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0,
+    "rotation": 120.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": 120.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

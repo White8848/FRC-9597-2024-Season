@@ -2,33 +2,15 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7853670538059491,
-      "y": 6.713432683677919
+      "x": 1.42,
+      "y": 5.53
     },
-    "rotation": 60.0
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PreShoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.5
-          }
-        },
         {
           "type": "named",
           "data": {

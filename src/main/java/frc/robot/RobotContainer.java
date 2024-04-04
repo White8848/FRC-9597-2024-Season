@@ -102,7 +102,7 @@ public class RobotContainer implements Sendable {
                             .andThen(Commands.runOnce(() -> m_intake.setVelocity(0)))))
             .withTimeout(1.4));
 
-    NamedCommands.registerCommand("Reset Heading", drivetrain.resetFieldRelative());
+    // NamedCommands.registerCommand("Reset Heading", drivetrain.resetFieldRelative());
     // Configure the trigger bindings
     configureBindings();
 
@@ -141,25 +141,26 @@ public class RobotContainer implements Sendable {
         .whileTrue(Commands.waitSeconds(0.5).andThen(m_intake.outPut(-60)))
         .whileTrue(m_shooter.differentialShootDownCommand());
 
-    // m_driverJoystick
-    // .x()
-    // .whileTrue(m_intake.smartUpTake(30))
-    // .onFalse(
-    // Commands.waitSeconds(2.0)
-    // .andThen(Commands.runOnce(() -> m_LedStrips.setRGB(255, 0, 0))));
     m_driverJoystick
         .x()
-        .onTrue(m_intake.upTake(30).alongWith(m_LedStrips.setRGB_CMD(0, 15, 254)))
+        .whileTrue(m_intake.smartUpTake(25))
         .onFalse(
-            m_intake
-                .outPut(4)
-                .withTimeout(.325)
-                .andThen(m_intake.upTake(0))
-                .alongWith(m_LedStrips.setRGB_CMD(254, 0, 0)));
+            Commands.waitSeconds(2.0)
+                .andThen(Commands.runOnce(() -> m_LedStrips.setRGB(255, 0, 0))));
 
-    m_seesNote
-        .onTrue(m_LedStrips.setRGB_CMD(254, 254, 254).repeatedly())
-        .onFalse(m_LedStrips.setRGB_CMD(255, 0, 0));
+    // m_driverJoystick
+    //     .x()
+    //     .onTrue(m_intake.upTake(25).alongWith(m_LedStrips.setRGB_CMD(0, 15, 254)))
+    //     .onFalse(
+    //         m_intake
+    //             .outPut(4)
+    //             .withTimeout(.38)
+    //             .andThen(m_intake.upTake(0))
+    //             .alongWith(m_LedStrips.setRGB_CMD(254, 0, 0)));
+
+    // m_seesNote
+    //     .onTrue(m_LedStrips.setRGB_CMD(254, 254, 254).repeatedly())
+    //     .onFalse(m_LedStrips.setRGB_CMD(255, 0, 0));
 
     // .onFalse(
     // Commands.waitSeconds(1);

@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -40,7 +41,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   private static final double kSimLoopPeriod = 0.005; // 5 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
-  private PIDController autoHeadingController = new PIDController(8, 0.00, 0.0); // Teleop rotating
+  private PIDController autoHeadingController = new PIDController(12, 0.00, 0.0); // Teleop rotating
   private double Headingtarget = 0;
 
   private SwerveRequest.ApplyChassisSpeeds driveAuto = new SwerveRequest.ApplyChassisSpeeds();
@@ -154,7 +155,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                         this.curveControl(Joystick.getLeftY()) * DriveTrainConstants.MaxSpeed)
                     .withVelocityY(
                         this.curveControl(Joystick.getLeftX()) * DriveTrainConstants.MaxSpeed)
-                    .withTargetDirection(Rotation2d.fromDegrees(90)));
+                    .withTargetDirection(
+                        Rotation2d.fromDegrees(
+                            DriverStation.getAlliance().isPresent()
+                                    && DriverStation.getAlliance().get() == Alliance.Red
+                                ? -90
+                                : 90)));
             Headingtarget = this.getState().Pose.getRotation().getRadians();
           }
 
@@ -167,7 +173,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     return runOnce(
         () -> {
           DriveTrainConstants.HeadingTarget = this.getState().Pose.getRotation();
-          this.seedFieldRelative();
+          this.seedFieldRelative(new Pose2d());
         });
   }
 

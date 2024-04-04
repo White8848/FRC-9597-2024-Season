@@ -3,37 +3,49 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.42,
-        "y": 5.53
+        "x": 8.41632943052363,
+        "y": 0.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6731732885431088,
-        "y": 6.447090813256771
+        "x": 7.043244264429464,
+        "y": 1.4414116793861484
       },
       "isLocked": false,
-      "linkedName": "2 Piece Start"
+      "linkedName": "Note 5"
     },
     {
       "anchor": {
-        "x": 2.95,
-        "y": 7.0
+        "x": 0.77,
+        "y": 4.28
       },
       "prevControl": {
-        "x": 1.3860951711168494,
-        "y": 7.109268459659958
+        "x": 2.503462789518784,
+        "y": 1.277554375523391
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Note A"
+      "linkedName": "2NoteLine Start"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Slow Down To Shoot",
+      "minWaypointRelativePos": 0.85,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 4.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
-      "name": "Infeed",
-      "waypointRelativePos": 0.2,
+      "name": "Fix Infeed",
+      "waypointRelativePos": 0.5,
       "command": {
         "type": "parallel",
         "data": {
@@ -41,7 +53,7 @@
             {
               "type": "named",
               "data": {
-                "name": "Intake"
+                "name": "Fix Intake"
               }
             }
           ]
@@ -50,21 +62,21 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.2,
     "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0,
+    "velocity": 0.0,
+    "rotation": 120.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": 120.0,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

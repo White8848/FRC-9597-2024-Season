@@ -83,17 +83,17 @@ public class Intake extends SubsystemBase {
           if (m_stop == true && m_shooter.isShooterOn() == false) {
             if (m_timer.get() < 0.1) {
               setVelocity(0.0);
-              m_LedStrips.setRGB(0, 15, 255);
-            } else if (m_timer.get() < 0.38) { // 0.30
+              m_LedStrips.setRGB(0, 5, 255);
+            } else if (m_timer.get() < 0.38) { // 0.38
               setVelocity(4);
-              m_LedStrips.setRGB(255, 0, 220);
+              m_LedStrips.setRGB(0, 254, 0);
             }
             // else if (m_timer.get() < 1.5){
             // m_LedStrips.setRGB(0, 255, 0);
             // setVelocity(0.0);
             // }
             else setVelocity(0.0);
-            m_LedStrips.setRGB(0, 255, 0);
+            m_LedStrips.setRGB(255, 255, 255);
           } else {
             setVelocity(-velocity);
             m_stop = false;
@@ -140,7 +140,7 @@ public class Intake extends SubsystemBase {
      */
     toApply.Slot0.kP = 12; // An error of 1 rotation per second results in 5 amps output
     toApply.Slot0.kI =
-        0.2; // An error of 1 rotation per second increases output by 0.1 amps every second
+        0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
     toApply.Slot0.kD =
         0.001; // A change of 1000 rotation per second squared results in 1 amp output
 
