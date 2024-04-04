@@ -1,37 +1,47 @@
+// Copyright (c) 2024 FRC 9597
+// https://github.com/White8848/FRC-9597-2024-Season
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 
 public class Shooter extends SubsystemBase {
   private static final String canBusName = "canivore";
   private final TalonFX m_upShooterTalonFX = new TalonFX(21, canBusName);
   private final TalonFX m_downShooterTalonFX = new TalonFX(22, canBusName);
-  private final VelocityTorqueCurrentFOC m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false,
-      false);
+  private final VelocityTorqueCurrentFOC m_torqueVelocity =
+      new VelocityTorqueCurrentFOC(0, 0, 0, 0, false, false, false);
 
   /* What to publish over networktables for telemetry */
   private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
   /* shooter data for checking */
   private final NetworkTable driveStats = inst.getTable("Shooter");
-  private final DoublePublisher velocityTarget = driveStats.getDoubleTopic("Velocity Target").publish();
-  private final DoublePublisher velocityMeasurement = driveStats.getDoubleTopic("Velocity Measurement").publish();
+  private final DoublePublisher velocityTarget =
+      driveStats.getDoubleTopic("Velocity Target").publish();
+  private final DoublePublisher velocityMeasurement =
+      driveStats.getDoubleTopic("Velocity Measurement").publish();
   private final DoublePublisher torqueTarget = driveStats.getDoubleTopic("Torque Target").publish();
-  private final DoublePublisher torqueMeasurement = driveStats.getDoubleTopic("Torque Measurement").publish();
-  private final DoublePublisher torqueFeedForward = driveStats.getDoubleTopic("Torque FeedForward").publish();
+  private final DoublePublisher torqueMeasurement =
+      driveStats.getDoubleTopic("Torque Measurement").publish();
+  private final DoublePublisher torqueFeedForward =
+      driveStats.getDoubleTopic("Torque FeedForward").publish();
 
   public Shooter() {
     initializeTalonFX(m_upShooterTalonFX.getConfigurator());
     initializeTalonFX(m_downShooterTalonFX.getConfigurator());
-
   }
 
   public Command commonShootCommand() {
@@ -49,15 +59,15 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command differentialShootUpCommand() {
-    return startEnd(() -> setVelocity(55, 18.0), () -> setVelocity(0.0)); // 60,18
+    return startEnd(() -> setVelocity(55, 20.0), () -> setVelocity(0.0)); // 60,18
   }
 
   public Command farShootCommand() {
-    return startEnd(() -> setVelocity(65.0, 50.0), () -> setVelocity(0.0));
+    return startEnd(() -> setVelocity(65.0, 50.0), () -> setVelocity(0.0)); // 65 50
   }
 
   public Command differentialShootDownCommand() {
-    return startEnd(() -> setVelocity(78.0, 55.0), () -> setVelocity(0.0));
+    return startEnd(() -> setVelocity(75.0, 50.0), () -> setVelocity(0.0)); // 75 55
   }
 
   public void setVelocity(double velocity) {
@@ -66,7 +76,7 @@ public class Shooter extends SubsystemBase {
     if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
       desiredRotationsPerSecond = 0;
     }
-    double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1;// To account for friction
+    double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction
 
     m_upShooterTalonFX.setControl(
         m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
@@ -82,10 +92,8 @@ public class Shooter extends SubsystemBase {
       desiredRotationsPerSecond = 0;
     }
 
-    m_upShooterTalonFX.setControl(
-        m_torqueVelocity.withVelocity(desiredRotationsPerSecond));
-    m_downShooterTalonFX.setControl(
-        m_torqueVelocity.withVelocity(desiredRotationsPerSecondDown));
+    m_upShooterTalonFX.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond));
+    m_downShooterTalonFX.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecondDown));
   }
 
   @Override
@@ -101,8 +109,10 @@ public class Shooter extends SubsystemBase {
     var toApply = new TalonFXConfiguration();
 
     toApply.Slot0.kP = 6; // An error of 1 rotation per second results in 5 amps output
-    toApply.Slot0.kI = 0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
-    toApply.Slot0.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
+    toApply.Slot0.kI =
+        0.1; // An error of 1 rotation per second increases output by 0.1 amps every second
+    toApply.Slot0.kD =
+        0.001; // A change of 1000 rotation per second squared results in 1 amp output
 
     // Peak output of 40 amps
     toApply.TorqueCurrent.PeakForwardTorqueCurrent = 40;
@@ -112,10 +122,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isShooterOn() {
-    if (m_upShooterTalonFX.getClosedLoopReference().getValueAsDouble() != 0.0)
-      return true;
-    else
-      return false;
+    if (m_upShooterTalonFX.getClosedLoopReference().getValueAsDouble() != 0.0) return true;
+    else return false;
   }
 
   public TalonFX getUpShooterTalonFX() {

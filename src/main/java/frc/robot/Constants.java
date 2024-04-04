@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2024 FRC 9597
+// https://github.com/White8848/FRC-9597-2024-Season
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot;
 
@@ -16,18 +19,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
  */
 public final class Constants {
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;    
+    public static final int kDriverControllerPort = 0;
   }
 
-  public static class DriveTrainConstants{
-    public static final double MaxSpeed = 6.0; // 6 meters per second desired top speed
-    public static final double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-    public static final double DeadBand = 0.1;
-    public static final double RotationalDeadband = 0.1;
+  public static class DriveTrainConstants {
+    public static final double MaxSpeed = 5.6; // 6 meters per second desired top speed
+    public static final double MaxAngularRate =
+        1.7 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    public static final double DeadBand = 0.06;
+    public static final double RotationalDeadband = 0.06;
 
     public static final double timestampPeriod = 0.02;
 
     public static Rotation2d HeadingTarget = new Rotation2d();
   }
-
 }

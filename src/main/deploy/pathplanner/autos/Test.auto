@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4,
-      "y": 5.55
+      "x": 1.4437834806867724,
+      "y": 5.525138184875874
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Note 1"
+            "pathName": "4 Piece A-B"
           }
         }
       ]

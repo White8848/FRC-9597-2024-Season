@@ -1,5 +1,5 @@
 // Copyright (c) 2024 FRC 9597
-// https://github.com/ButlerTechRobotics
+// https://github.com/White8848/FRC-9597-2024-Season
 //
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file at

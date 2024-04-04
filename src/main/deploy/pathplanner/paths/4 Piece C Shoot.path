@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.6361015892964894,
+        "y": 3.9680626347214716
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.9326858802355091,
+        "y": 4.937820214203599
+      },
+      "isLocked": false,
+      "linkedName": "Note C"
+    },
+    {
+      "anchor": {
+        "x": 1.42,
+        "y": 5.53
+      },
+      "prevControl": {
+        "x": 1.960002995150499,
+        "y": 4.992454444033578
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "2 Piece Start"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Fix Infeed",
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Fix Intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

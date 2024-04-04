@@ -1,20 +1,25 @@
+// Copyright (c) 2024 FRC 9597
+// https://github.com/White8848/FRC-9597-2024-Season
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.subsystems;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.DoublePublisher;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 // import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -22,7 +27,7 @@ public class Arm extends SubsystemBase {
   private final TalonFX m_leftTalonFX = new TalonFX(25, canBusName);
   private final TalonFX m_rightTalonFX = new TalonFX(26, canBusName);
   private final DynamicMotionMagicTorqueCurrentFOC m_mmtorquePosition =
-      new DynamicMotionMagicTorqueCurrentFOC(0, 35, 250, 4000, 0, 0, false, false, false);
+      new DynamicMotionMagicTorqueCurrentFOC(0, 45, 250, 4000, 0, 0, false, false, false);
 
   private double m_targetArmPosition = 0.0;
   private double m_realArmPosition = 0.0;
@@ -133,7 +138,7 @@ public class Arm extends SubsystemBase {
           m_mmtorquePosition.Acceleration = 100;
           m_mmtorquePosition.Jerk = 1000;
 
-          var position = -33; // -33
+          var position = -31.4; // -32
           setArmPosition(position);
         });
   }
@@ -141,11 +146,11 @@ public class Arm extends SubsystemBase {
   public Command armMid() {
     return runOnce(
         () -> {
-          m_mmtorquePosition.Velocity = 35;
+          m_mmtorquePosition.Velocity = 50;
           m_mmtorquePosition.Acceleration = 100;
           m_mmtorquePosition.Jerk = 1000;
 
-          var position = -6.9; // -6.5
+          var position = -7.5; // -6.9
           setArmPosition(position);
         });
   }
@@ -153,11 +158,11 @@ public class Arm extends SubsystemBase {
   public Command armPod() {
     return runOnce(
         () -> {
-          m_mmtorquePosition.Velocity = 35;
+          m_mmtorquePosition.Velocity = 50;
           m_mmtorquePosition.Acceleration = 100;
           m_mmtorquePosition.Jerk = 1000;
 
-          var position = -12.55; // -12.8
+          var position = -13.3; // -13.4
           setArmPosition(position);
         });
   }
@@ -186,8 +191,8 @@ public class Arm extends SubsystemBase {
     toApply.Slot0.kD = 1.5; // A change of 1000 rotation per second squared results in 1 amp output
 
     // Peak output of 40 amps
-    toApply.TorqueCurrent.PeakForwardTorqueCurrent = 50;
-    toApply.TorqueCurrent.PeakReverseTorqueCurrent = -50;
+    toApply.TorqueCurrent.PeakForwardTorqueCurrent = 60;
+    toApply.TorqueCurrent.PeakReverseTorqueCurrent = -60;
 
     cfg.apply(toApply);
   }
